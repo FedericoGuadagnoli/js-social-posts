@@ -40,60 +40,79 @@ const posts = [
 //Prendo gli elementi di interesse dal DOM
 const container = document.getElementById('container');
 
+//^FUNZIONI
+const createCard = post => {
+  const {author,pictureAuthor,date,text,image,id,like} = post;
+
+  const formatDate = (stringDate) => {
+    const date = new Date(stringDate);
+    return date.toLocaleDateString();   
+  };
+  
+   const card = 
+   `<div class="post">
+   <div class="post__header">
+     <div class="post-meta">
+       <div class="post-meta__icon">
+         <img class="profile-pic" src="${pictureAuthor}" alt="profile_${author}" />
+       </div>
+       <div class="post-meta__data">
+         <div class="post-meta__author">${author}</div>
+         <div class="post-meta__time">${formatDate(date)}</div>
+       </div>
+     </div>
+   </div>
+   <div class="post__text">
+     ${text}
+   </div>
+   <div class="post__image">
+     <img src="${image}" alt="" />
+   </div>
+   <div class="post__footer">
+     <div class="likes js-likes">
+       <div class="likes__cta">
+         <button class="like-button js-like-button" href="#" data-postid="${id}">
+           <i class="like-button__icon fas fa-thumbs-up" aria-hidden="true"></i>
+           <span class="like-button__label">Mi Piace</span>
+         </button>
+       </div>
+       <div class="likes__counter">Piace a <b id="like-counter-${id}" class="js-likes-counter">${like}</b> persone</div>
+     </div>
+   </div>
+ </div>`
+ return card;
+};
+
 
 //Creo una variabile di appoggio per creare il post
-let card = '';
 
+let cards = '';
 // Ciclo gli elementi dell'array da inserire nel post
-posts.forEach((post, i) => {
-    card += `
-    <div class="post">
-        <div class="post__header">
-          <div class="post-meta">
-            <div class="post-meta__icon">
-              <img class="profile-pic" src="${post.pictureAuthor}" alt="profile_${i}" />
-            </div>
-            <div class="post-meta__data">
-              <div class="post-meta__author">${post.author}</div>
-              <div class="post-meta__time">${post.date}</div>
-            </div>
-          </div>
-        </div>
-        <div class="post__text">
-          ${post.text}
-        </div>
-        <div class="post__image">
-          <img src="${post.image}" alt="" />
-        </div>
-        <div class="post__footer">
-          <div class="likes js-likes">
-            <div class="likes__cta">
-              <button class="like-button js-like-button" href="#" data-postid="${i}">
-                <i class="like-button__icon fas fa-thumbs-up" aria-hidden="true"></i>
-                <span class="like-button__label">Mi Piace</span>
-              </button>
-            </div>
-            <div class="likes__counter">Piace a <b id="like-counter-${i}" class="js-likes-counter">${post.like}</b> persone</div>
-          </div>
-        </div>
-      </div>`
-      container.innerHTML = card;
-      
-    });
+posts.forEach((post) => {
+  cards += createCard(post);  
+});
+
+  container.innerHTML = cards;
+
+
       //Prendo gli elementi di interesse appena creati con js dal DOM
       const likeButtons = document.querySelectorAll('.like-button');
-      const likeCounters = document.querySelectorAll('.js-likes-counter');
-      
-     likeButtons.forEach((likeButton, i) => {
+ 
+      // Aggiungo un evento al click per ogni bottone
+     likeButtons.forEach((likeButton) => {
       likeButton.addEventListener('click', () =>{
-        likeButton.classList.toggle('like-button--liked');
-        likeCounters.forEach((likeCounter, i) => {
-          likeButton.classList.contains('like-button--liked') ? posts[i].like += + 1 : posts[i].like += - 1;
-          likeCounter.innerHTML = posts[i].like;
-          console.log(posts[i].like);
 
+        // Aggiungo e tolgo la classe liked
+        likeButton.classList.toggle('like-button--liked');
+
+        // recupero il post-id e il counter dei like
+        const postId = likeButton.dataset.postid;
+        const likeCounters = document.getElementById(`like-counter-${postId}`);
           
-        });
+        // Incremento e decremento il bottone
+          let likes = parseInt(likeCounters.innerText);
+          const isLiked = likeButton.classList.contains('like-button--liked');
+          likeCounters.innerText = isLiked ? ++likes : --likes;
       });
      }); 
 
